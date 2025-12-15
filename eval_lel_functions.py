@@ -145,16 +145,16 @@ def generate_test_cases(params: List[str]) -> List[Dict[str, float]]:
 
     if len(params) == 1:
         p = params[0]
-        values = [-2.0, -1.0, 0.0, 1.0, 2.0]
+        values = [-3.0, -1.0, 0.1, 2.0, 4.0]
         return [{p: v} for v in values]
 
     if len(params) == 2:
         p, q = params
         combos = [
             (-1.0, 0.5),
-            (0.0, 0.0),
-            (1.0, -1.0),
-            (2.0, 2.0),
+            (0.1, 0.11),
+            (2.4, -1.0),
+            (2.2, 1.0),
         ]
         return [{p: a, q: b} for a, b in combos]
 
