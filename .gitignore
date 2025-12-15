@@ -3,3 +3,7 @@ arxiv_tex_cs_RO_2025/
 mitex_tmp/
 *.parquet
 *.jsonl
+
+# ignore python cache files
+__pycache__/
+*.pyc
