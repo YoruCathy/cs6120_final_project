@@ -448,6 +448,7 @@ def main():
 
     results: List[EvalResult] = []
     total_considered = 0
+    timings: List[float] = []   # end-to-end times for functions we actually run
 
     with tempfile.TemporaryDirectory() as tmpdir_str:
         tmpdir = Path(tmpdir_str)
@@ -467,7 +468,19 @@ def main():
                 record_id = str(rec.get("id", total_considered))
                 total_considered += 1
 
+                # --- timing starts here ---
+                start_t = time.perf_counter()
                 res = evaluate_function(eq, record_id, tmpdir)
+                end_t = time.perf_counter()
+                elapsed = end_t - start_t
+                # Only count functions where we actually ran the full pipeline
+                # (parse + ref eval + LLVM + clang + run). That corresponds to
+                # ones that made it past parse and ref eval, i.e. not "parse_error"
+                # or "unsupported".
+                if res.status in ("ok", "compile_error", "runtime_error"):
+                    timings.append(elapsed)
+                # --- timing ends here ---
+
                 results.append(res)
                 print(f"[{res.status.upper()}] {record_id}: {res.func_name}")
 
@@ -487,6 +500,25 @@ def main():
             print(f"\n--- {r.status.upper()} for {r.func_name} ---")
             print(f"Equation: {r.equation}")
             print(f"Detail: {r.detail}")
+
+    # --- Performance summary ---
+    print("\n=== Performance summary (end-to-end) ===")
+    if timings:
+        total_funcs = len(timings)
+        total_time = sum(timings)
+        mean_time = total_time / total_funcs
+        median_time = statistics.median(timings)
+        min_time = min(timings)
+        max_time = max(timings)
+
+        print(f"Functions timed: {total_funcs}")
+        print(f"Total time:      {total_time:.3f} s")
+        print(f"Avg per func:    {mean_time * 1000:.1f} ms")
+        print(f"Median per func: {median_time * 1000:.1f} ms")
+        print(f"Min / Max:       {min_time * 1000:.1f} ms / {max_time * 1000:.1f} ms")
+    else:
+        print("No functions reached end-to-end timing (no ok/compile_error/runtime_error cases).")
+
 
 
 if __name__ == "__main__":

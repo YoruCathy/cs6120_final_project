@@ -133,10 +133,10 @@ def tokenize_expr(src: str) -> List[Token]:
             i += 1
             continue
 
-        # Identifiers: letters only (keep it simple)
+        # Identifiers: letter followed by letters/digits/underscore
         if c.isalpha():
             j = i + 1
-            while j < n and src[j].isalpha():
+            while j < n and (src[j].isalnum() or src[j] == "_"):
                 j += 1
             tokens.append(Token("IDENT", src[i:j]))
             i = j
