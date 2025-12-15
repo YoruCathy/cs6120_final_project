@@ -50,7 +50,8 @@ from lel_core import (
     parse_function_def_from_string,
 )
 from lel_codegen_llvm import build_module_for_functiondef
-
+import time
+import statistics
 
 # ---------------------------------------------------------------------------
 # Python reference evaluator for Expr (with stub calls)
